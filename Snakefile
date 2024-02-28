@@ -1,6 +1,7 @@
 # Pipeline for processing data from direct nanopore RNA sequencing data
 
 ref="annotations/Homo_sapiens.GRCh38.cdna.all.fa"
+gtf="annotations/Homo_sapiens.GRCh38.111.gtf"
 
 rule all:
     input:
@@ -13,7 +14,10 @@ rule all:
         "m6anet_out/dataprep",
         "m6anet_out/predictions",
         "counts.tsv",
-        "m6anet_out/predictions"
+        "m6anet_out/predictions",
+        "merged.bed12",
+        "flair_out/merged_all_corrected.bed",
+        "flair_out/isoforms.gtf"
 
 rule guppy_basecalling:
     input:
@@ -142,4 +146,40 @@ rule estimate_counts:
     shell:
         """
         NanoCount -i {input} -o {output}
+        """
+
+rule bam_to_bed12:
+    input:
+        "merged/merged.bam"
+    output:
+        "merged.bed12"
+    shell:
+        """
+        bam2Bed12 -i {input} > {output}
+        """
+
+rule flair_correct:
+    input:
+        "merged.bed12"
+    output:
+        "flair_out/merged_all_corrected.bed",
+        "flair_out/merged_all_inconsistent.bed",
+        "flair_out/merged_cannot_verify.bed"
+    shell:
+        """
+        mkdir -p flair_corrected
+        flair correct -q {input} -f {gtf} -g {ref} --output flair_out/merged
+        """
+
+rule flair_collapse:
+    input:
+        corrected = "flair_out/merged_all_corrected.bed",
+        fastq = "merged/merged.fastq"
+    output:
+        "flair_out/isoforms.bed",
+        "flair_out/isoforms.gtf",
+        "flair_out/isoforms.fa"
+    shell:
+        """
+        flair collapse -g {ref} -q {input.corrected} -r {input.fastq} --output flair_out/isoforms
         """
