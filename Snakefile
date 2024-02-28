@@ -1,4 +1,4 @@
-# Pipeline for processing data from direct nanopore RNA sequencing data
+# Pipeline for processing direct nanopore RNA sequencing data
 
 ref="annotations/Homo_sapiens.GRCh38.cdna.all.fa"
 gtf="annotations/Homo_sapiens.GRCh38.111.gtf"
