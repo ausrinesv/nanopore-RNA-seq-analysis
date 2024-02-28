@@ -1,5 +1,6 @@
-
 # Pipeline for processing data from direct nanopore RNA sequencing data
+
+ref="annotations/Homo_sapiens.GRCh38.cdna.all.fa"
 
 rule all:
     input:
@@ -22,11 +23,10 @@ rule guppy_basecalling:
     params:
         flowcell = "FLO-FLG001",
         kit = "SQK-RNA002",
-        guppy = "tools/ont-guppy-cpu/bin/guppy_basecaller",
-        ref = "annotations/Saccharomyces_cerevisiae_YHR174W_mRNA_sequence.fa"
+        guppy = "tools/ont-guppy-cpu/bin/guppy_basecaller"
     shell:
         """
-        {params.guppy} -i {input.fast5_dir} -s {output.out_dir} --flowcell {params.flowcell} --kit {params.kit} --bam_out --align_ref {params.ref} --minimap_opt_string -p0 --minimap_opt_string -N10
+        {params.guppy} -i {input.fast5_dir} -s {output.out_dir} --flowcell {params.flowcell} --kit {params.kit} --bam_out --align_ref {ref} --minimap_opt_string -p0 --minimap_opt_string -N10
         """
 
 rule merge_fastq_files:
@@ -99,13 +99,12 @@ rule eventalign:
         bam = "merged/merged.bam",
         bam_idx = "merged/merged.bam.bai"
     params:
-        nanopolish = "tools/nanopolish/nanopolish",
-        ref = "annotations/Saccharomyces_cerevisiae_YHR174W_mRNA_sequence.fa"
+        nanopolish = "tools/nanopolish/nanopolish"
     output:
         "eventalign.txt"
     shell:
         """
-        {params.nanopolish} eventalign --reads {input.fastq} --bam {input.bam} --genome {params.ref} --scale-events --signal-index --summary eventalign_summary.txt > {output}
+        {params.nanopolish} eventalign --reads {input.fastq} --bam {input.bam} --genome {ref} --scale-events --signal-index --summary eventalign_summary.txt > {output}
         """
 
 rule m6anet_dataprep:
