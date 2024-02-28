@@ -1,4 +1,4 @@
-This is the workflow for analyzing direct Oxford Nanopore RNA sequencing data
+Workflow for analyzing direct Oxford Nanopore RNA sequencing data
 
 To run the workflow, the following directories should exist:
 - fast5: directory that contains raw FAST5 files
